@@ -26,17 +26,24 @@ public class AuthController : AuthorizedApiController
     [HttpPost("token")]
     public async Task<IActionResult> Token([FromBody] LoginModel model)
     {
-        var token = await _usersService.GetToken(model.Email, model.Password);
-
-        var user = await _userRepository.GetByEmail(model.Email);
-
-        return Ok(new
+        try 
         {
-            Token = token,
-            ExpiresIn = 3600,
-            UserId =  user.Id,
-            UserName = user.Nickname
-        });
+            var token = await _usersService.GetToken(model.Email, model.Password);
+
+            var user = await _userRepository.GetByEmail(model.Email);
+
+            return Ok(new
+            {
+                Token = token,
+                ExpiresIn = 3600,
+                UserId = user.Id,
+                UserName = user.Nickname
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
     
     [HttpPost("signup")]
